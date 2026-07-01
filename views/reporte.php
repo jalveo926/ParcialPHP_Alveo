@@ -4,97 +4,37 @@
 <head>
 
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Reporte de Inscripciones</title>
+    <title>Reporte de Perfiles Laborales</title>
 
-    <style>
-
-        body{
-            font-family: Arial;
-            padding:40px;
-            background:#f4f4f4;
-        }
-
-        table{
-            width:100%;
-            border-collapse: collapse;
-            background:white;
-        }
-
-        th,td{
-            border:1px solid #ccc;
-            padding:10px;
-            text-align:left;
-        }
-
-        th{
-            background:#2563eb;
-            color:white;
-        }
-
-        h1{
-            margin-bottom:20px;
-        }
-
-        .btn{
-            display:inline-block;
-            margin-bottom:20px;
-            padding:10px;
-            background:#16a34a;
-            color:white;
-            text-decoration:none;
-        }
-
-        .btn-secondary{
-            background:#2563eb;
-        }
-
-        .toolbar{
-            display:flex;
-            gap:10px;
-            flex-wrap:wrap;
-            margin-bottom:20px;
-        }
-
-        .badge{
-            display:inline-block;
-            padding:6px 10px;
-            border-radius:999px;
-            font-size:12px;
-            font-weight:bold;
-            color:white;
-        }
-
-        .badge-ok{
-            background:#16a34a;
-        }
-
-        .badge-bad{
-            background:#dc2626;
-        }
-
-    </style>
+    <link rel="stylesheet" href="styles/style.css">
 
 </head>
 
 <body>
 
-<h1>Reporte de Inscripciones</h1>
+<main class="container">
+
+<h1>Reporte de Perfiles Laborales</h1>
 
 <?php if (empty($modoExportacion)): ?>
-    <div class="toolbar">
-        <a href="index.php" class="btn btn-secondary">Volver al formulario</a>
-        <a href="index.php?pagina=reporte&export=excel" class="btn">Exportar a Excel</a>
+    <div>
+        <a href="index.php">Volver al formulario</a>
+        <br>
+        <a href="index.php?pagina=reporte&export=excel">Exportar a Excel</a>
     </div>
 <?php endif; ?>
 
-<table>
+<table class="reporte-tabla">
 
     <thead>
 
         <tr>
 
-            <th>ID</th>
+            <th>ID Perfil</th>
+
+            <th>Codigo Empleado</th>
 
             <th>Identidad</th>
 
@@ -107,6 +47,24 @@
             <th>Celular</th>
 
             <th>Sexo</th>
+
+            <th>Tipo Empleado</th>
+
+            <th>Planilla</th>
+
+            <th>Ocupacion</th>
+
+            <th>Salario</th>
+
+            <th>Fecha Inicio</th>
+
+            <th>Fecha Fin</th>
+
+            <th>Cargo Activo</th>
+
+            <th>Empleado Activo</th>
+
+            <th>Motivo Baja</th>
 
             <th>Temas Tecnológicos</th>
 
@@ -122,7 +80,7 @@
 
             <tr>
 
-                <td colspan="9">
+                <td colspan="19">
 
                     No hay registros
 
@@ -139,6 +97,12 @@
                     <td>
 
                         <?= $fila["id"] ?>
+
+                    </td>
+
+                    <td>
+
+                        <?= (int) $fila["codigo_empleado"] ?>
 
                     </td>
 
@@ -180,17 +144,73 @@
 
                     <td>
 
+                        <?= htmlspecialchars($fila["tipo_empleado"]) ?>
+
+                    </td>
+
+                    <td>
+
+                        <?= htmlspecialchars($fila["planilla"]) ?>
+
+                    </td>
+
+                    <td>
+
+                        <?= htmlspecialchars($fila["ocupacion"]) ?>
+
+                    </td>
+
+                    <td>
+
+                        <?= number_format((float) $fila["salario"], 2) ?>
+
+                    </td>
+
+                    <td>
+
+                        <?= htmlspecialchars((string) $fila["fecha_inicio"]) ?>
+
+                    </td>
+
+                    <td>
+
+                        <?= !empty($fila["fecha_fin"]) ? htmlspecialchars((string) $fila["fecha_fin"]) : 'N/A' ?>
+
+                    </td>
+
+                    <td>
+
+                        <span class="<?= !empty($fila['cargo_activo']) ? 'estado-ok' : 'estado-bad' ?>">
+                            <?= !empty($fila['cargo_activo']) ? 'Si' : 'No' ?>
+                        </span>
+
+                    </td>
+
+                    <td>
+
+                        <span class="<?= !empty($fila['empleado_activo']) ? 'estado-ok' : 'estado-bad' ?>">
+                            <?= !empty($fila['empleado_activo']) ? 'Si' : 'No' ?>
+                        </span>
+
+                    </td>
+
+                    <td>
+
+                        <?= !empty($fila["motivo_baja"]) ? htmlspecialchars((string) $fila["motivo_baja"]) : 'Sin motivo' ?>
+
+                    </td>
+
+                    <td>
+
                         <?= htmlspecialchars($fila["temas"]) ?>
 
                     </td>
 
                     <td>
 
-                        <?php if (!empty($fila['integridad_ok'])): ?>
-                            <span class="badge badge-ok">Validado</span>
-                        <?php else: ?>
-                            <span class="badge badge-bad">Corrompido</span>
-                        <?php endif; ?>
+                        <span class="<?= !empty($fila['integridad_ok']) ? 'estado-ok' : 'estado-bad' ?>">
+                            <?= !empty($fila['integridad_ok']) ? 'Validado' : 'Corrompido' ?>
+                        </span>
 
                     </td>
 
@@ -203,6 +223,10 @@
     </tbody>
 
 </table>
+
+<?php require_once __DIR__ . '/components/footer.php'; ?>
+
+</main>
 
 </body>
 

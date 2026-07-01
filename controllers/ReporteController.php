@@ -14,7 +14,7 @@ class ReporteController
 
         if ($modoExportacion) {
             header('Content-Type: application/vnd.ms-excel; charset=UTF-8');
-            header('Content-Disposition: attachment; filename=reporte_inscripciones.xls');
+            header('Content-Disposition: attachment; filename=reporte_perfiles_laborales.xls');
             header('Pragma: no-cache');
             header('Expires: 0');
         }
@@ -26,12 +26,12 @@ class ReporteController
     {
         foreach ($registros as &$fila) {
             $datos = [
-                'identidad' => (string) ($fila['identidad'] ?? ''),
-                'nombre' => (string) ($fila['nombre'] ?? ''),
-                'apellido' => (string) ($fila['apellido'] ?? ''),
-                'correo' => (string) ($fila['correo'] ?? ''),
-                'celular' => (string) ($fila['celular'] ?? ''),
-                'sexo' => (string) ($fila['sexo'] ?? ''),
+                'codigo_empleado' => (string) ($fila['codigo_empleado'] ?? ''),
+                'salario' => (string) ($fila['salario'] ?? ''),
+                'tipo_empleado_id' => (string) ($fila['tipo_empleado_id'] ?? ''),
+                'planilla_id' => (string) ($fila['planilla_id'] ?? ''),
+                'ocupacion_id' => (string) ($fila['ocupacion_id'] ?? ''),
+                'fecha_inicio' => (string) ($fila['fecha_inicio'] ?? ''),
             ];
 
             $firma = (string) ($fila['firma_integridad'] ?? '');

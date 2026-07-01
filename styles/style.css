@@ -1,0 +1,191 @@
+/* Reset básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f4f6f9;
+    color: #333;
+    padding: 40px;
+    line-height: 1.5;
+}
+
+/* Contenedor general */
+.container {
+    max-width: 900px;
+    margin: auto;
+}
+
+/* Títulos */
+h2 {
+    margin: 30px 0 20px;
+    color: #1e3a5f;
+    border-left: 5px solid #3498db;
+    padding-left: 12px;
+    font-size: 24px;
+}
+
+/* Formularios */
+form {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+    margin-bottom: 40px;
+}
+
+/* Etiquetas */
+label {
+    display: block;
+    margin-top: 15px;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: #444;
+}
+
+/* Inputs */
+input,
+select,
+textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #d0d7de;
+    border-radius: 6px;
+    outline: none;
+    font-size: 15px;
+    transition: 0.2s;
+}
+
+/* Focus */
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 4px rgba(52,152,219,0.3);
+}
+
+/* Textarea */
+textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+/* Botones */
+button {
+    margin-top: 20px;
+    width: 100%;
+    padding: 14px;
+    border: none;
+    background: #3498db;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: 0.3s;
+}
+
+button:hover {
+    background: #2980b9;
+}
+
+/* Mensajes */
+p {
+    margin: 15px 0;
+}
+
+/* Mensajes de éxito */
+p:first-of-type {
+    padding: 12px;
+    background: #d4edda;
+    color: #155724;
+    border-left: 5px solid #28a745;
+    border-radius: 5px;
+}
+
+/* Separador */
+hr {
+    margin: 40px 0;
+    border: none;
+    height: 1px;
+    background: #ddd;
+}
+
+/* Link reporte */
+a {
+    display: inline-block;
+    margin-top: 15px;
+    text-decoration: none;
+    background: #2ecc71;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 6px;
+    transition: 0.3s;
+}
+
+a:hover {
+    background: #27ae60;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    body {
+        padding: 20px;
+    }
+
+    form {
+        padding: 20px;
+    }
+
+    h2 {
+        font-size: 20px;
+    }
+}
+
+.reporte-tabla {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    margin-top: 20px;
+}
+
+.reporte-tabla th,
+.reporte-tabla td {
+    border: 1px solid #d0d7de;
+    padding: 10px;
+    text-align: left;
+}
+
+.reporte-tabla th {
+    background: #1e3a5f;
+    color: #fff;
+}
+
+.estado-ok {
+    color: #0a7a2f;
+    font-weight: 700;
+}
+
+.estado-bad {
+    color: #b42318;
+    font-weight: 700;
+}
+
+footer {
+    margin-top: 30px;
+    padding: 16px;
+    background: #1e3a5f;
+    color: #fff;
+    border-radius: 8px;
+}
+
+.footer-copy,
+.footer-contacto {
+    margin: 0;
+}
+
+.footer-contacto {
+    margin-top: 6px;
+}

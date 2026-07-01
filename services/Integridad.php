@@ -13,12 +13,11 @@ class Integridad
     private static function obtenerRutaOpenSSLConfig(): ?string
     {
         $rutas = [
-
             __DIR__ . '/../openssl.cnf',
-
-            'J:/BACKEND/AppsDesarrollo/apache/conf/openssl.cnf',
-
-            'J:/BACKEND/AppsDesarrollo/php/extras/ssl/openssl.cnf'
+            'D:/AplicacioneSoftware/Xamp/apache/conf/openssl.cnf',
+            'D:/AplicacioneSoftware/Xamp/php/extras/ssl/openssl.cnf',
+            'C:/xampp/apache/conf/openssl.cnf',
+            'C:/xampp/php/extras/ssl/openssl.cnf',
         ];
 
         foreach ($rutas as $ruta) {
@@ -116,13 +115,35 @@ class Integridad
 
     public static function crearCadena(array $datos): string
     {
+        if (
+            array_key_exists('codigo_empleado', $datos) ||
+            array_key_exists('colaborador_id', $datos) ||
+            array_key_exists('salario', $datos) ||
+            array_key_exists('ocupacion_id', $datos)
+        ) {
+            $codigoEmpleado = $datos['codigo_empleado'] ?? $datos['colaborador_id'] ?? '';
+
+            return implode('|', [
+                trim((string) $codigoEmpleado),
+                number_format((float) ($datos['salario'] ?? 0), 2, '.', ''),
+                trim((string) ($datos['tipo_empleado_id'] ?? '')),
+                trim((string) ($datos['planilla_id'] ?? '')),
+                trim((string) ($datos['ocupacion_id'] ?? '')),
+                trim((string) ($datos['fecha_inicio'] ?? '')),
+            ]);
+        }
+
         return implode('|', [
             trim((string) ($datos['identidad'] ?? '')),
             trim((string) ($datos['nombre'] ?? '')),
             trim((string) ($datos['apellido'] ?? '')),
+            trim((string) ($datos['edad'] ?? '')),
+            trim((string) ($datos['tipo_sangre_id'] ?? '')),
+            trim((string) ($datos['sexo'] ?? '')),
+            trim((string) ($datos['nacionalidad_id'] ?? '')),
+            trim((string) ($datos['ruta_colaborador_id'] ?? '')),
             trim((string) ($datos['correo'] ?? '')),
             trim((string) ($datos['celular'] ?? '')),
-            trim((string) ($datos['sexo'] ?? '')),
         ]);
     }
 
