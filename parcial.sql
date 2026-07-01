@@ -108,6 +108,45 @@ INSERT INTO cat_ocupaciones (nombre) VALUES
 ('Conductor'),
 ('Supervisor');
 
+CREATE TABLE cat_estadocivil (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(255) NOT NULL DEFAULT '',
+    UNIQUE KEY uk_cat_estadocivil_nombre (nombre)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT INTO cat_estadocivil (id, nombre) VALUES
+(1, 'Seleccionar'),
+(2, 'Soltero (a)'),
+(3, 'Casado (a)'),
+(4, 'Divorciado (a)'),
+(5, 'Viudo (a)'),
+(6, 'Unido (a)');
+
+CREATE TABLE cat_motivos_terminacion (
+    c_terminacion INT AUTO_INCREMENT PRIMARY KEY,
+    motivo VARCHAR(50) DEFAULT NULL,
+    UNIQUE KEY uk_cat_motivos_terminacion_motivo (motivo)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT INTO cat_motivos_terminacion (c_terminacion, motivo) VALUES
+(1, 'JUBILACION'),
+(2, 'RENUNCIA'),
+(3, 'DESTITUCION LEY 7'),
+(4, 'PENSIONADO'),
+(5, 'DEFUNCION'),
+(6, 'TERMINACION DE CONTRATO'),
+(7, 'PRIVATIZACION'),
+(8, 'ABANDONO DEL CARGO'),
+(9, 'AUSENCIA INJUSTIFICADA'),
+(10, 'EMBRIAGUEZ'),
+(11, 'EVALUACION INSATISFACTORIA'),
+(12, 'FALTA DE HONRADEZ'),
+(13, 'HURTO'),
+(14, 'INDICIPLINA'),
+(15, 'INMORALIDAD'),
+(16, 'NEGLIGENCIA'),
+(17, 'POR RECIBIR COIMA');
+
 CREATE TABLE areas_interes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
@@ -131,6 +170,7 @@ CREATE TABLE colaboradores (
     apellido VARCHAR(100) NOT NULL,
     edad INT NOT NULL,
     tipo_sangre_id INT NOT NULL,
+    estado_civil_id INT DEFAULT NULL,
     sexo ENUM('Masculino', 'Femenino', 'Otro') NOT NULL,
     nacionalidad_id INT NOT NULL,
     ruta_colaborador_id INT NOT NULL,
@@ -148,6 +188,12 @@ CREATE TABLE colaboradores (
     CONSTRAINT fk_colaboradores_tipo_sangre
         FOREIGN KEY (tipo_sangre_id)
         REFERENCES cat_tipos_sangre(id)
+        ON DELETE RESTRICT
+        ON UPDATE CASCADE,
+
+    CONSTRAINT fk_colaboradores_estado_civil
+        FOREIGN KEY (estado_civil_id)
+        REFERENCES cat_estadocivil(id)
         ON DELETE RESTRICT
         ON UPDATE CASCADE,
 
@@ -170,6 +216,7 @@ CREATE TABLE perfiles_laborales (
     tipo_empleado_id INT NOT NULL,
     planilla_id INT NOT NULL,
     ocupacion_id INT NOT NULL,
+    motivo_terminacion_id INT DEFAULT NULL,
     salario DECIMAL(12,2) NOT NULL,
     fecha_inicio DATE NOT NULL,
     fecha_fin DATE DEFAULT NULL,
@@ -208,6 +255,12 @@ CREATE TABLE perfiles_laborales (
     CONSTRAINT fk_perfiles_ocupacion
         FOREIGN KEY (ocupacion_id)
         REFERENCES cat_ocupaciones(id)
+        ON DELETE RESTRICT
+        ON UPDATE CASCADE,
+
+    CONSTRAINT fk_perfiles_motivo_terminacion
+        FOREIGN KEY (motivo_terminacion_id)
+        REFERENCES cat_motivos_terminacion(c_terminacion)
         ON DELETE RESTRICT
         ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -306,3 +359,54 @@ CREATE TABLE inscriptor_temas (
         ON DELETE RESTRICT
         ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+DELIMITER $$
+
+DROP PROCEDURE IF EXISTS busquedaporNombre$$
+CREATE PROCEDURE busquedaporNombre(IN p_nombre VARCHAR(255))
+BEGIN
+    SELECT
+        codigo_empleado,
+        identidad,
+        nombre,
+        apellido,
+        correo,
+        celular
+    FROM colaboradores
+    WHERE nombre LIKE CONCAT(p_nombre, '%')
+    ORDER BY nombre, apellido;
+END$$
+
+DROP PROCEDURE IF EXISTS empleados_list_id$$
+CREATE PROCEDURE empleados_list_id(IN dato_id INT)
+BEGIN
+    SELECT
+        c.codigo_empleado,
+        c.identidad,
+        c.nombre,
+        c.apellido,
+        c.correo,
+        c.celular,
+        c.edad,
+        c.sexo,
+        p.nombre AS nacionalidad,
+        r.nombre AS ruta_colaborador
+    FROM colaboradores c
+    INNER JOIN paises p
+        ON p.id = c.nacionalidad_id
+    INNER JOIN cat_rutas_colaborador r
+        ON r.id = c.ruta_colaborador_id
+    WHERE c.codigo_empleado = dato_id;
+END$$
+
+DROP PROCEDURE IF EXISTS getEmpledos$$
+CREATE PROCEDURE getEmpledos()
+BEGIN
+    SELECT
+        nombre,
+        sexo
+    FROM colaboradores
+    ORDER BY nombre, apellido;
+END$$
+
+DELIMITER ;

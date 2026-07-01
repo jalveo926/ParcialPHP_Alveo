@@ -1,24 +1,23 @@
 
 <?php
 
+require_once __DIR__ . '/../helpers/ErrorHelper.php';
 require_once __DIR__ . '/../models/InscriptorModel.php';
 
+try {
+    $modelo = new InscriptorModel();
 
-$modelo = new InscriptorModel();
+    $paises = $modelo->obtenerPaises();
+    $tiposSangre = $modelo->obtenerTiposSangre();
+    $rutas = $modelo->obtenerRutasColaborador();
+    $tiposPlanilla = $modelo->obtenerTiposPlanilla();
+    $tiposEmpleado = $modelo->obtenerTiposEmpleado();
+    $ocupaciones = $modelo->obtenerOcupaciones();
+    $colaboradores = $modelo->obtenerColaboradores();
 
-$paises = $modelo->obtenerPaises();
-
-$tiposSangre = $modelo->obtenerTiposSangre();
-
-$rutas = $modelo->obtenerRutasColaborador();
-
-$tiposPlanilla = $modelo->obtenerTiposPlanilla();
-
-$tiposEmpleado = $modelo->obtenerTiposEmpleado();
-
-$ocupaciones = $modelo->obtenerOcupaciones();
-
-$colaboradores = $modelo->obtenerColaboradores();
+} catch (Throwable $e) {
+    $errorSistema = $e;
+}
 
 $registro = $_GET['registro'] ?? '';
 
@@ -34,7 +33,9 @@ $registro = $_GET['registro'] ?? '';
 </head>
 <body>
 <main class="container">
-
+<?php if (!empty($errorSistema)): ?>
+    <?php mostrarError($errorSistema); ?>
+<?php endif; ?>
 <?php if ($registro === 'colaborador_ok'): ?>
     <p>Colaborador registrado correctamente.</p>
 <?php endif; ?>

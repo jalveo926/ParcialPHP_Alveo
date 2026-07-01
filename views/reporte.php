@@ -1,3 +1,18 @@
+
+<?php
+
+require_once __DIR__ . '/../helpers/ErrorHelper.php';
+require_once __DIR__ . '/../models/InscriptorModel.php';
+
+try {
+    $modelo = new InscriptorModel();
+    $registros = $modelo->obtenerReporte();
+} catch (Throwable $e) {
+    $errorSistema = $e;
+    $registros = [];
+}
+
+?>
 <!DOCTYPE html>
 <html lang="es">
 
@@ -15,7 +30,9 @@
 <body>
 
 <main class="container">
-
+<?php if (!empty($errorSistema)): ?>
+    <?php mostrarError($errorSistema); ?>
+<?php endif; ?>
 <h1>Reporte de Perfiles Laborales</h1>
 
 <?php if (empty($modoExportacion)): ?>
@@ -66,7 +83,6 @@
 
             <th>Motivo Baja</th>
 
-            <th>Temas Tecnológicos</th>
 
             <th>Integridad</th>
 
@@ -197,12 +213,6 @@
                     <td>
 
                         <?= !empty($fila["motivo_baja"]) ? htmlspecialchars((string) $fila["motivo_baja"]) : 'Sin motivo' ?>
-
-                    </td>
-
-                    <td>
-
-                        <?= htmlspecialchars($fila["temas"]) ?>
 
                     </td>
 
