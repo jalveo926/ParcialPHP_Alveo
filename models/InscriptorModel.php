@@ -16,15 +16,6 @@ class InscriptorModel
     {
         $sql = 'SELECT id, nombre FROM paises ORDER BY nombre';
         $stmt = $this->db->query($sql);
-
-        return $stmt->fetchAll();
-    }
-
-    public function obtenerAreas(): array
-    {
-        $sql = 'SELECT id, nombre FROM areas_interes ORDER BY nombre';
-        $stmt = $this->db->query($sql);
-
         return $stmt->fetchAll();
     }
 
@@ -32,7 +23,6 @@ class InscriptorModel
     {
         $sql = 'SELECT id, nombre FROM cat_tipos_sangre ORDER BY nombre';
         $stmt = $this->db->query($sql);
-
         return $stmt->fetchAll();
     }
 
@@ -40,7 +30,6 @@ class InscriptorModel
     {
         $sql = 'SELECT id, nombre FROM cat_rutas_colaborador ORDER BY nombre';
         $stmt = $this->db->query($sql);
-
         return $stmt->fetchAll();
     }
 
@@ -48,7 +37,6 @@ class InscriptorModel
     {
         $sql = 'SELECT id, nombre FROM cat_tipos_planilla ORDER BY id';
         $stmt = $this->db->query($sql);
-
         return $stmt->fetchAll();
     }
 
@@ -56,15 +44,20 @@ class InscriptorModel
     {
         $sql = 'SELECT id, nombre FROM cat_tipos_empleado ORDER BY nombre';
         $stmt = $this->db->query($sql);
-
         return $stmt->fetchAll();
     }
 
     public function obtenerOcupaciones(): array
     {
-        $sql = 'SELECT id, nombre FROM cat_ocupaciones ORDER BY nombre';
+        $sql = 'SELECT id, nombre FROM cat_ocupaciones WHERE activo = 1 ORDER BY nombre';
         $stmt = $this->db->query($sql);
+        return $stmt->fetchAll();
+    }
 
+    public function obtenerMotivosTerminacion(): array
+    {
+        $sql = 'SELECT id, nombre FROM cat_motivos_terminacion ORDER BY nombre';
+        $stmt = $this->db->query($sql);
         return $stmt->fetchAll();
     }
 
@@ -79,12 +72,40 @@ class InscriptorModel
             FROM colaboradores
             ORDER BY codigo_empleado DESC
         ';
-        $stmt = $this->db->query($sql);
 
+        $stmt = $this->db->query($sql);
         return $stmt->fetchAll();
     }
 
-    public function guardarColaborador(array $datos, string $firma): int
+    public function obtenerColaboradorPorId(int $codigoEmpleado): array
+    {
+        $sql = '
+            SELECT
+                codigo_empleado,
+                identidad,
+                nombre,
+                apellido,
+                edad,
+                tipo_sangre_id,
+                sexo,
+                nacionalidad_id,
+                ruta_colaborador_id,
+                correo,
+                celular
+            FROM colaboradores
+            WHERE codigo_empleado = ?
+            LIMIT 1
+        ';
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$codigoEmpleado]);
+
+        $colaborador = $stmt->fetch();
+
+        return $colaborador !== false ? $colaborador : [];
+    }
+
+    public function guardarColaborador(array $datos, string $firma = ''): int
     {
         $sql = 'INSERT INTO colaboradores
                 (
@@ -107,14 +128,14 @@ class InscriptorModel
             $datos['identidad'],
             $datos['nombre'],
             $datos['apellido'],
-            $datos['edad'],
-            $datos['tipo_sangre_id'],
+            (int) $datos['edad'],
+            (int) $datos['tipo_sangre_id'],
             $datos['sexo'],
-            $datos['nacionalidad_id'],
-            $datos['ruta_colaborador_id'],
+            (int) $datos['nacionalidad_id'],
+            (int) $datos['ruta_colaborador_id'],
             $datos['correo'],
             $datos['celular'],
-            $datos['observaciones'],
+            $datos['observaciones'] ?? null,
         ]);
 
         return (int) $this->db->lastInsertId();
@@ -125,7 +146,16 @@ class InscriptorModel
         $this->db->beginTransaction();
 
         try {
-            if (!empty($datos['cargo_activo'])) {
+            $fechaFin = !empty($datos['fecha_fin']) ? $datos['fecha_fin'] : null;
+            $motivoBaja = trim((string) ($datos['motivo_baja'] ?? ''));
+            $motivoTerminacionId = !empty($datos['motivo_terminacion_id'])
+                ? (int) $datos['motivo_terminacion_id']
+                : null;
+
+            $cargoActivo = $fechaFin === null ? (int) ($datos['cargo_activo'] ?? 1) : 0;
+            $empleadoActivo = $fechaFin === null && $motivoBaja === '' ? (int) ($datos['empleado_activo'] ?? 1) : 0;
+
+            if ($cargoActivo === 1) {
                 $this->desactivarPerfilesActivos((int) $datos['colaborador_id']);
             }
 
@@ -140,23 +170,25 @@ class InscriptorModel
                         fecha_fin,
                         cargo_activo,
                         empleado_activo,
+                        motivo_terminacion_id,
                         motivo_baja,
                         firma_integridad
                     )
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 
             $stmt = $this->db->prepare($sql);
             $stmt->execute([
-                $datos['colaborador_id'],
-                $datos['tipo_empleado_id'],
-                $datos['planilla_id'],
-                $datos['ocupacion_id'],
-                $datos['salario'],
+                (int) $datos['colaborador_id'],
+                (int) $datos['tipo_empleado_id'],
+                (int) $datos['planilla_id'],
+                (int) $datos['ocupacion_id'],
+                (float) $datos['salario'],
                 $datos['fecha_inicio'],
-                $datos['fecha_fin'],
-                $datos['cargo_activo'],
-                $datos['empleado_activo'],
-                $datos['motivo_baja'],
+                $fechaFin,
+                $cargoActivo,
+                $empleadoActivo,
+                $motivoTerminacionId,
+                $motivoBaja !== '' ? $motivoBaja : null,
                 $firma,
             ]);
 
@@ -195,8 +227,12 @@ class InscriptorModel
                 c.identidad,
                 c.nombre,
                 c.apellido,
+                c.edad,
+                c.tipo_sangre_id,
                 c.correo,
                 c.celular,
+                c.nacionalidad_id,
+                c.ruta_colaborador_id,
                 c.sexo,
                 te.id AS tipo_empleado_id,
                 tp.id AS planilla_id,
@@ -209,16 +245,11 @@ class InscriptorModel
                 pl.fecha_fin,
                 pl.cargo_activo,
                 pl.empleado_activo,
+                pl.motivo_terminacion_id,
+                mt.nombre AS motivo_terminacion,
                 pl.motivo_baja,
                 pl.firma_integridad,
-                COALESCE(
-                    GROUP_CONCAT(
-                        a.nombre
-                        ORDER BY a.nombre
-                        SEPARATOR ", "
-                    ),
-                    "Sin temas"
-                ) AS temas
+                "Sin temas" AS temas
             FROM perfiles_laborales pl
             INNER JOIN colaboradores c
                 ON c.codigo_empleado = pl.colaborador_id
@@ -228,54 +259,17 @@ class InscriptorModel
                 ON tp.id = pl.planilla_id
             INNER JOIN cat_ocupaciones o
                 ON o.id = pl.ocupacion_id
-            LEFT JOIN inscriptores i
-                ON i.identidad = c.identidad
-            LEFT JOIN inscriptor_temas it
-                ON it.inscriptor_id = i.id
-            LEFT JOIN areas_interes a
-                ON a.id = it.area_interes_id
-            GROUP BY
-                pl.id,
-                c.codigo_empleado,
-                c.identidad,
-                c.nombre,
-                c.apellido,
-                c.correo,
-                c.celular,
-                c.sexo,
-                te.id,
-                tp.id,
-                o.id,
-                te.nombre,
-                tp.nombre,
-                o.nombre,
-                pl.salario,
-                pl.fecha_inicio,
-                pl.fecha_fin,
-                pl.cargo_activo,
-                pl.empleado_activo,
-                pl.motivo_baja,
-                pl.firma_integridad
+            LEFT JOIN cat_motivos_terminacion mt
+                ON mt.id = pl.motivo_terminacion_id
             ORDER BY pl.id DESC
         ';
 
         $stmt = $this->db->query($sql);
-
         return $stmt->fetchAll();
     }
 
     public function guardar(array $datos, string $firma): int
     {
         return $this->guardarColaborador($datos, $firma);
-    }
-
-    public function guardarTemas(int $inscriptorId, array $temas): void
-    {
-        $sql = 'INSERT INTO inscriptor_temas (inscriptor_id, area_interes_id) VALUES (?, ?)';
-        $stmt = $this->db->prepare($sql);
-
-        foreach ($temas as $temaId) {
-            $stmt->execute([$inscriptorId, $temaId]);
-        }
     }
 }

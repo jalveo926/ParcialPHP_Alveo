@@ -115,21 +115,39 @@ class Integridad
 
     public static function crearCadena(array $datos): string
     {
-        if (
+        $esPerfilLaboral =
             array_key_exists('codigo_empleado', $datos) ||
             array_key_exists('colaborador_id', $datos) ||
-            array_key_exists('salario', $datos) ||
-            array_key_exists('ocupacion_id', $datos)
-        ) {
+            array_key_exists('tipo_empleado_id', $datos) ||
+            array_key_exists('planilla_id', $datos) ||
+            array_key_exists('ocupacion_id', $datos) ||
+            array_key_exists('salario', $datos);
+
+        if ($esPerfilLaboral) {
             $codigoEmpleado = $datos['codigo_empleado'] ?? $datos['colaborador_id'] ?? '';
 
             return implode('|', [
                 trim((string) $codigoEmpleado),
+                trim((string) ($datos['identidad'] ?? '')),
+                trim((string) ($datos['nombre'] ?? '')),
+                trim((string) ($datos['apellido'] ?? '')),
+                trim((string) ($datos['edad'] ?? '')),
+                trim((string) ($datos['tipo_sangre_id'] ?? '')),
+                trim((string) ($datos['sexo'] ?? '')),
+                trim((string) ($datos['nacionalidad_id'] ?? '')),
+                trim((string) ($datos['ruta_colaborador_id'] ?? '')),
+                trim((string) ($datos['correo'] ?? '')),
+                trim((string) ($datos['celular'] ?? '')),
                 number_format((float) ($datos['salario'] ?? 0), 2, '.', ''),
                 trim((string) ($datos['tipo_empleado_id'] ?? '')),
                 trim((string) ($datos['planilla_id'] ?? '')),
                 trim((string) ($datos['ocupacion_id'] ?? '')),
                 trim((string) ($datos['fecha_inicio'] ?? '')),
+                trim((string) ($datos['fecha_fin'] ?? '')),
+                trim((string) ($datos['cargo_activo'] ?? '')),
+                trim((string) ($datos['empleado_activo'] ?? '')),
+                trim((string) ($datos['motivo_terminacion_id'] ?? '')),
+                trim((string) ($datos['motivo_baja'] ?? '')),
             ]);
         }
 

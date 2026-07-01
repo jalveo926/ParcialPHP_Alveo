@@ -1,18 +1,9 @@
 
 <?php
-
-require_once __DIR__ . '/../helpers/ErrorHelper.php';
-require_once __DIR__ . '/../models/InscriptorModel.php';
-
-try {
-    $modelo = new InscriptorModel();
-    $registros = $modelo->obtenerReporte();
-} catch (Throwable $e) {
-    $errorSistema = $e;
-    $registros = [];
-}
-
+$registros = $registros ?? [];
+$modoExportacion = $modoExportacion ?? false;
 ?>
+
 <!DOCTYPE html>
 <html lang="es">
 
@@ -30,9 +21,6 @@ try {
 <body>
 
 <main class="container">
-<?php if (!empty($errorSistema)): ?>
-    <?php mostrarError($errorSistema); ?>
-<?php endif; ?>
 <h1>Reporte de Perfiles Laborales</h1>
 
 <?php if (empty($modoExportacion)): ?>
