@@ -13,11 +13,12 @@ class Integridad
     private static function obtenerRutaOpenSSLConfig(): ?string
     {
         $rutas = [
+
             __DIR__ . '/../openssl.cnf',
-            'D:/AplicacioneSoftware/Xamp/apache/conf/openssl.cnf',
-            'D:/AplicacioneSoftware/Xamp/php/extras/ssl/openssl.cnf',
-            'C:/xampp/apache/conf/openssl.cnf',
-            'C:/xampp/php/extras/ssl/openssl.cnf',
+
+            'J:/BACKEND/AppsDesarrollo/apache/conf/openssl.cnf',
+
+            'J:/BACKEND/AppsDesarrollo/php/extras/ssl/openssl.cnf'
         ];
 
         foreach ($rutas as $ruta) {

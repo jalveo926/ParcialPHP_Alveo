@@ -1,4 +1,4 @@
-CREATE DATABASE IF NOT EXISTS parcial_itech
+CREATE DATABASE IF NOT EXISTS parcial_alveo
 CHARACTER SET utf8mb4
 COLLATE utf8mb4_unicode_ci;
 
